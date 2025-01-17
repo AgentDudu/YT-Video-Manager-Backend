@@ -37,16 +37,12 @@ public class PlaylistService {
     Optional<User> user = userRepository.findByUsername(username);
 
     if (user.isPresent()) {
-
       Playlist playlist = new Playlist();
       playlist.setName(playlistDto.getName());
-      Set<Video> videos = new HashSet<>();
+
       if (playlistDto.getVideoIds() != null) {
-        for (Long videoId : playlistDto.getVideoIds()) {
-          Optional<Video> video = videoRepository.findById(videoId);
-          video.ifPresent(videos::add);
-        }
-        playlist.setVideos(videos);
+        List<Video> videoList = videoRepository.findAllById(playlistDto.getVideoIds());
+        playlist.setVideos(videoList);
       }
 
       playlist.setUser(user.get());
@@ -56,12 +52,10 @@ public class PlaylistService {
       PlaylistResponseDto playlistResponseDto = new PlaylistResponseDto();
       playlistResponseDto.setId(savedPlaylist.getId());
       playlistResponseDto.setName(savedPlaylist.getName());
-      playlistResponseDto.setVideos(savedPlaylist.getVideos());
+      playlistResponseDto.setVideos(new HashSet<>(savedPlaylist.getVideos()));
 
       return playlistResponseDto;
-
     }
-
     return null;
   }
 
@@ -83,7 +77,7 @@ public class PlaylistService {
     PlaylistResponseDto playlistResponseDto = new PlaylistResponseDto();
     playlistResponseDto.setId(playlist.getId());
     playlistResponseDto.setName(playlist.getName());
-    playlistResponseDto.setVideos(playlist.getVideos());
+    playlistResponseDto.setVideos(new HashSet<>(playlist.getVideos()));
     return playlistResponseDto;
   }
 }
